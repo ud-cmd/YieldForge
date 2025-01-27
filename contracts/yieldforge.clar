@@ -38,3 +38,49 @@
         deposit-time: uint
     }
 )
+
+;; Storage: Protocol Total Deposits
+(define-map protocol-total-deposits 
+    {protocol-id: uint} 
+    {total-deposit: uint}
+)
+
+;; Contract Owner
+(define-constant CONTRACT-OWNER tx-sender)
+
+;; Constants
+(define-constant MAX-PROTOCOLS u5)
+(define-constant MAX-ALLOCATION-PERCENTAGE u100)
+(define-constant BASE-DENOMINATION u1000000)
+(define-constant MAX-PROTOCOL-NAME-LENGTH u50)
+(define-constant MAX-BASE-APY u10000)  ;; 100%
+(define-constant MAX-DEPOSIT-AMOUNT u1000000000)  ;; Reasonable max deposit
+
+;; Input Validation Functions
+(define-private (is-valid-protocol-id (protocol-id uint))
+    (and (> protocol-id u0) (<= protocol-id MAX-PROTOCOLS))
+)
+
+(define-private (is-valid-protocol-name (name (string-ascii 50)))
+    (and 
+        (> (len name) u0) 
+        (<= (len name) MAX-PROTOCOL-NAME-LENGTH)
+    )
+)
+
+(define-private (is-valid-base-apy (base-apy uint))
+    (<= base-apy MAX-BASE-APY)
+)
+
+(define-private (is-valid-allocation-percentage (percentage uint))
+    (and (> percentage u0) (<= percentage MAX-ALLOCATION-PERCENTAGE))
+)
+
+(define-private (is-valid-deposit-amount (amount uint))
+    (and (> amount u0) (<= amount MAX-DEPOSIT-AMOUNT))
+)
+
+;; Authorization Check
+(define-private (is-contract-owner (sender principal))
+    (is-eq sender CONTRACT-OWNER)
+)
